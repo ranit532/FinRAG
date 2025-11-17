@@ -55,15 +55,17 @@ sequenceDiagram
 
 | Service | Logo | Purpose in this PoC |
 |--------|------|---------------------|
-| **Azure Resource Group** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Azure%20Resource%20Manager.svg" width="32" /> | Logical container for all Azure resources (compute, storage, observability, OpenAI). |
-| **Azure Storage (Static Website)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Storage%20Accounts.svg" width="32" /> | Hosts the built React/Vite frontend as a static site in the `$web` container. |
-| **Azure App Service (Linux)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/App%20Services.svg" width="32" /> | Runs the FastAPI backend with a Linux App Service Plan, exposing the `/api/rag/query` endpoint. |
-| **Managed Identity (System-assigned)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Managed%20Identities.svg" width="32" /> | Allows the backend to authenticate to Azure OpenAI without storing keys or secrets. |
-| **Azure OpenAI (Cognitive Services)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Cognitive%20Services.svg" width="32" /> | Provides `gpt-4o-mini` for answers and `text-embedding-3-large` for vector embeddings. |
-| **Log Analytics Workspace** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Log%20Analytics%20workspaces.svg" width="32" /> | Central store for logs and metrics collected from Application Insights. |
-| **Application Insights** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Application%20Insights.svg" width="32" /> | Observability for the backend (APM, traces, availability). |
-| **Azure AD / Entra ID (App + SP)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Active%20Directory.svg" width="32" /> | App registration + service principal used by Azure DevOps service connection. |
-| **Azure DevOps (Project + Pipelines)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Azure%20DevOps.svg" width="32" /> | Hosts the Git repo, YAML pipelines, and the Azure service connection used to run Terraform and deploy the app. |
+| **Azure Resource Group** | ![Azure Resource Group](docs/assets/azure-logos/azure-resource-group.svg) | Logical container for all Azure resources (compute, storage, observability, OpenAI). |
+| **Azure Storage (Static Website)** | ![Azure Storage](docs/assets/azure-logos/azure-storage.svg) | Hosts the built React/Vite frontend as a static site in the `$web` container. |
+| **Azure App Service (Linux)** | ![Azure App Service](docs/assets/azure-logos/azure-app-service.svg) | Runs the FastAPI backend with a Linux App Service Plan, exposing the `/api/rag/query` endpoint. |
+| **Managed Identity (System-assigned)** | ![Managed Identity](docs/assets/azure-logos/managed-identity.svg) | Allows the backend to authenticate to Azure OpenAI without storing keys or secrets. |
+| **Azure OpenAI (Cognitive Services)** | ![Azure OpenAI](docs/assets/azure-logos/azure-openai.svg) | Provides `gpt-4o-mini` for answers and `text-embedding-3-large` for vector embeddings. |
+| **Log Analytics Workspace** | ![Log Analytics](docs/assets/azure-logos/log-analytics.svg) | Central store for logs and metrics collected from Application Insights. |
+| **Application Insights** | ![Application Insights](docs/assets/azure-logos/application-insights.svg) | Observability for the backend (APM, traces, availability). |
+| **Azure AD / Entra ID (App + SP)** | ![Azure AD](docs/assets/azure-logos/azure-ad.svg) | App registration + service principal used by Azure DevOps service connection. |
+| **Azure DevOps (Project + Pipelines)** | ![Azure DevOps](docs/assets/azure-logos/azure-devops.svg) | Hosts the Git repo, YAML pipelines, and the Azure service connection used to run Terraform and deploy the app. |
+
+> **Note**: The logo files are stored under `docs/assets/azure-logos`. They are placeholders in this PoC; replace them with the official Azure SVG icons from Microsoft’s `azure-icons` repository (or your internal design system) to show the real product logos.
 
 ### Local Development
 1. **Frontend**
