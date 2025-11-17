@@ -81,3 +81,74 @@ End-to-end Retrieval Augmented Generation (RAG) proof of concept for a global in
 - Integrate Azure API Management or Front Door for zero-trust ingress.
 - Replace static dataset with ingestion from Azure Storage or Cosmos DB plus Azure Functions event triggers.
 - Add integration tests validating retrieval-grounded answers using contract tests in CI/CD.
+
+### High-Level Architecture Diagram
+
+```mermaid
+flowchart LR
+    subgraph Azure
+      A[Developer / Broker\nWeb Browser] --> B[Azure Storage Static Website\n(React / Vite Frontend)]
+      B -->|HTTPS / JSON| C[Azure App Service (Linux)\nFastAPI Backend + Managed Identity]
+
+      subgraph AzureOpenAI[Azure OpenAI]
+        D1[gpt-4o-mini\nChat/Completion]
+        D2[text-embedding-3-large\nEmbedding]
+      end
+
+      C -->|Managed Identity / AAD| AzureOpenAI
+
+      subgraph Observability
+        E[Log Analytics Workspace]
+        F[Application Insights]
+      end
+
+      C --> F
+      F --> E
+    end
+
+    C -->|HTTPs + API key| G[(Pinecone\nVector Index)]
+
+    subgraph AzureDevOps[Azure DevOps]
+      H[Azure DevOps Project\n(Repos + Pipelines)]
+      I[Service Connection\n(Azure AD Service Principal)]
+    end
+
+    H -->|CI/CD\nAzure Pipelines| C
+    H -->|Static Build Artifacts| B
+    H -->|Terraform Plan/Apply| Azure
+```
+
+### End-to-End Flow Diagram (RAG + Ingestion)
+
+```mermaid
+sequenceDiagram
+    participant User as User / Broker
+    participant FE as React Frontend<br/>(Azure Static Web)
+    participant API as FastAPI Backend<br/>(Azure App Service)
+    participant AOAI as Azure OpenAI<br/>(gpt-4o-mini + embeddings)
+    participant PC as Pinecone<br/>(Vector Index)
+
+    rect rgb(240,240,255)
+      Note over User,PC: Online Query Flow
+      User->>FE: Ask question about premiums / loss ratios
+      FE->>API: POST /api/rag/query { question }
+      API->>AOAI: Generate embedding for question
+      AOAI-->>API: Embedding vector
+      API->>PC: Query top-k similar chunks
+      PC-->>API: Matching chunks + metadata
+      API->>AOAI: Call chat model with context + question
+      AOAI-->>API: Grounded answer text
+      API-->>FE: { answer, references }
+      FE-->>User: Render answer & source snippets
+    end
+
+    rect rgb(235,255,235)
+      Note over API,PC: Offline Ingestion (scripts/app.ingest.py)
+      API->>API: Run Seeder().ingest()
+      API->>API: Load synthetic_policies.json
+      API->>AOAI: Embed each document chunk
+      AOAI-->>API: Embedding vectors
+      API->>PC: Upsert vectors + metadata
+      PC-->>API: Index updated
+    end
+```
