@@ -111,6 +111,7 @@ resource "azurerm_linux_web_app" "api" {
     application_stack {
       python_version = "3.12"
     }
+    always_on = false
   }
 
   app_settings = {
