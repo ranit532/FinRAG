@@ -55,15 +55,15 @@ sequenceDiagram
 
 | Service | Logo | Purpose in this PoC |
 |--------|------|---------------------|
-| **Azure Resource Group** | ![Azure Resource Group](https://learn.microsoft.com/en-us/azure/architecture/icons/media/azure-resource-groups.svg) | Logical container for all Azure resources (compute, storage, observability, OpenAI). |
-| **Azure Storage (Static Website)** | ![Azure Storage](https://learn.microsoft.com/en-us/azure/architecture/icons/media/storage-accounts.svg) | Hosts the built React/Vite frontend as a static site in the `$web` container. |
-| **Azure App Service (Linux)** | ![Azure App Service](https://learn.microsoft.com/en-us/azure/architecture/icons/media/app-services.svg) | Runs the FastAPI backend with a Linux App Service Plan, exposing the `/api/rag/query` endpoint. |
-| **Managed Identity (System-assigned)** | ![Managed Identity](https://learn.microsoft.com/en-us/azure/architecture/icons/media/managed-identities.svg) | Allows the backend to authenticate to Azure OpenAI without storing keys or secrets. |
-| **Azure OpenAI (Cognitive Services)** | ![Azure OpenAI](https://learn.microsoft.com/en-us/azure/architecture/icons/media/cognitive-services.svg) | Provides `gpt-4o-mini` for answers and `text-embedding-3-large` for vector embeddings. |
-| **Log Analytics Workspace** | ![Log Analytics](https://learn.microsoft.com/en-us/azure/architecture/icons/media/log-analytics-workspaces.svg) | Central store for logs and metrics collected from Application Insights. |
-| **Application Insights** | ![Application Insights](https://learn.microsoft.com/en-us/azure/architecture/icons/media/application-insights.svg) | Observability for the backend (APM, traces, availability). |
-| **Azure AD / Entra ID (App + SP)** | ![Azure AD](https://learn.microsoft.com/en-us/azure/architecture/icons/media/active-directory.svg) | App registration + service principal used by Azure DevOps service connection. |
-| **Azure DevOps (Project + Pipelines)** | ![Azure DevOps](https://learn.microsoft.com/en-us/azure/architecture/icons/media/devops.svg) | Hosts the Git repo, YAML pipelines, and the Azure service connection used to run Terraform and deploy the app. |
+| **Azure Resource Group** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Azure%20Resource%20Manager.svg" width="32" /> | Logical container for all Azure resources (compute, storage, observability, OpenAI). |
+| **Azure Storage (Static Website)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Storage%20Accounts.svg" width="32" /> | Hosts the built React/Vite frontend as a static site in the `$web` container. |
+| **Azure App Service (Linux)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/App%20Services.svg" width="32" /> | Runs the FastAPI backend with a Linux App Service Plan, exposing the `/api/rag/query` endpoint. |
+| **Managed Identity (System-assigned)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Managed%20Identities.svg" width="32" /> | Allows the backend to authenticate to Azure OpenAI without storing keys or secrets. |
+| **Azure OpenAI (Cognitive Services)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Cognitive%20Services.svg" width="32" /> | Provides `gpt-4o-mini` for answers and `text-embedding-3-large` for vector embeddings. |
+| **Log Analytics Workspace** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Log%20Analytics%20workspaces.svg" width="32" /> | Central store for logs and metrics collected from Application Insights. |
+| **Application Insights** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Application%20Insights.svg" width="32" /> | Observability for the backend (APM, traces, availability). |
+| **Azure AD / Entra ID (App + SP)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Active%20Directory.svg" width="32" /> | App registration + service principal used by Azure DevOps service connection. |
+| **Azure DevOps (Project + Pipelines)** | <img src="https://raw.githubusercontent.com/microsoft/azure-icons/main/azure-icons/Azure%20DevOps.svg" width="32" /> | Hosts the Git repo, YAML pipelines, and the Azure service connection used to run Terraform and deploy the app. |
 
 ### Local Development
 1. **Frontend**
@@ -126,33 +126,33 @@ sequenceDiagram
 ```mermaid
 flowchart LR
     subgraph Azure
-      A[Developer / Broker\nWeb Browser] --> B[Azure Storage Static Website\n(React / Vite Frontend)]
-      B -->|HTTPS / JSON| C[Azure App Service (Linux)\nFastAPI Backend + Managed Identity]
+      A["User Browser"] --> B["Azure Storage Static Website - React/Vite Frontend"]
+      B -->|HTTPS JSON| C["Azure App Service Linux - FastAPI + Managed Identity"]
 
-      subgraph AzureOpenAI[Azure OpenAI]
-        D1[gpt-4o-mini\nChat/Completion]
-        D2[text-embedding-3-large\nEmbedding]
+      subgraph AzureOpenAI["Azure OpenAI"]
+        D1["gpt-4o-mini - Chat/Completion"]
+        D2["text-embedding-3-large - Embedding"]
       end
 
-      C -->|Managed Identity / AAD| AzureOpenAI
+      C -->|Managed Identity AAD| AzureOpenAI
 
       subgraph Observability
-        E[Log Analytics Workspace]
-        F[Application Insights]
+        E["Log Analytics Workspace"]
+        F["Application Insights"]
       end
 
       C --> F
       F --> E
     end
 
-    C -->|HTTPs + API key| G[(Pinecone\nVector Index)]
+    C -->|HTTPS API key| G["Pinecone Vector Index"]
 
-    subgraph AzureDevOps[Azure DevOps]
-      H[Azure DevOps Project\n(Repos + Pipelines)]
-      I[Service Connection\n(Azure AD Service Principal)]
+    subgraph AzureDevOps["Azure DevOps"]
+      H["Azure DevOps Project - Repos and Pipelines"]
+      I["Azure Service Connection - SPN"]
     end
 
-    H -->|CI/CD\nAzure Pipelines| C
+    H -->|CI/CD Pipelines| C
     H -->|Static Build Artifacts| B
-    H -->|Terraform Plan/Apply| Azure
+    H -->|Terraform Plan Apply| Azure
 ```
