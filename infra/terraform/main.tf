@@ -66,7 +66,6 @@ resource "azurerm_cognitive_deployment" "gpt4o" {
   }
   scale {
     type = "Standard"
-    size = "S0"
     capacity = 1
   }
 }
@@ -82,7 +81,6 @@ resource "azurerm_cognitive_deployment" "embedding" {
   }
   scale {
     type = "Standard"
-    size = "S0"
     capacity = 1
   }
 }
