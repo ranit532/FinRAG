@@ -1,0 +1,34 @@
+[
+  {
+    "policy_id": "POLICY-1001",
+    "carrier": "Northwind Indemnity",
+    "period": "FY2024",
+    "sections": [
+      {
+        "title": "Executive Summary",
+        "content": "Premiums increased 8.4% YoY driven by commercial auto expansion. Combined ratio improved to 96.1 with a 2pt loss ratio reduction after fraud controls.",
+        "summary": "Premiums +8.4%, combined ratio 96.1",
+        "page": 1
+      },
+      {
+        "title": "Loss Ratio Detail",
+        "content": "Personal property loss ratio 57.2, commercial property 63.1. Catastrophe losses contained within 4.2pts. Average claim cycle time reduced to 18 days.",
+        "summary": "Loss ratios trending downward",
+        "page": 3
+      }
+    ]
+  },
+  {
+    "policy_id": "POLICY-2042",
+    "carrier": "Contoso Specialty",
+    "period": "FY2024",
+    "sections": [
+      {
+        "title": "Capital Adequacy",
+        "content": "Risk-Based Capital at 465% against a 375% target. Reinsurance program renewed with 12% lower attachment points due to better catastrophe modeling confidence.",
+        "summary": "RBC healthy, reins savings",
+        "page": 2
+      }
+    ]
+  }
+]

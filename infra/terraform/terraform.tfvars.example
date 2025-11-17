@@ -1,0 +1,7 @@
+location              = "eastus"
+project_name          = "finrag"
+environment           = "poc"
+azure_devops_org_url  = "https://dev.azure.com/your-org"
+azure_devops_project  = "FinRAG"
+azure_devops_pat      = "azdovspat123"
+oidc_service_principal_name = "finrag-ado-mi"
