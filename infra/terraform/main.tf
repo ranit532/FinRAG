@@ -33,7 +33,8 @@ resource "azurerm_log_analytics_workspace" "log" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
-  retention_in_days   = 30
+  # Lower retention to reduce Log Analytics cost for a PoC
+  retention_in_days   = 7
 }
 
 resource "azurerm_application_insights" "appi" {
@@ -87,7 +88,8 @@ resource "azurerm_service_plan" "asp" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  sku_name            = "P1v3"
+  # B1 = Basic tier, enough for PoC and much cheaper than P1v3
+  sku_name            = "B1"
 }
 
 resource "azurerm_linux_web_app" "api" {

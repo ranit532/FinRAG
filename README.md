@@ -95,15 +95,19 @@ sequenceDiagram
 
 ### Terraform Deployment
 1. Copy `infra/terraform/terraform.tfvars.example` ➜ `terraform.tfvars` and fill values (region, DevOps org/project, PAT, etc.).
-2. Configure AzureRM backend (remote state) or let Terraform default to local.
-3. Run:
+2. **For free-credit PoC usage**, the Terraform defaults are tuned to be cheaper:
+   - App Service Plan uses `B1` (Basic) instead of `P1v3`.
+   - Log Analytics retention is set to 7 days.
+   - Azure OpenAI is on minimal `S0` usage; keep prompts light during experimentation.
+3. Configure AzureRM backend (remote state) or let Terraform default to local.
+4. Run:
    ```bash
    cd infra/terraform
    terraform init
    terraform plan
    terraform apply
    ```
-4. Outputs expose the App Service URL, static site endpoint, and OpenAI endpoint for connecting the app.
+5. Outputs expose the App Service URL, static site endpoint, and OpenAI endpoint for connecting the app.
 
 ### Azure DevOps Pipeline
 1. Import this repo into your Azure DevOps project or connect via service connection.
