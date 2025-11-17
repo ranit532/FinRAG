@@ -56,16 +56,18 @@ resource "azurerm_cognitive_account" "openai" {
 }
 
 resource "azurerm_cognitive_deployment" "gpt4o" {
-  name                 = "gpt-35-turbo"
+  name                 = "gpt-4o-mini"
   cognitive_account_id = azurerm_cognitive_account.openai.id
   rai_policy_name      = "Microsoft.Default"
+
   model {
     format  = "OpenAI"
-    name    = "gpt-35-turbo"
-    version = "0301"
+    name    = "gpt-4o-mini"
+    version = "2024-07-18"
   }
+
   scale {
-    type = "Standard"
+    type     = "Standard"
     capacity = 1
   }
 }
@@ -90,8 +92,9 @@ resource "azurerm_service_plan" "asp" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  # S1 is generally available even on free-credit subscriptions. Adjust upwards for performance.
-  sku_name            = "S1"
+
+  # Free tier - avoids all quota issues
+  sku_name            = "F1"
 }
 
 resource "azurerm_linux_web_app" "api" {
@@ -105,6 +108,7 @@ resource "azurerm_linux_web_app" "api" {
   }
 
   site_config {
+    always_on = false
     application_stack {
       python_version = "3.12"
     }

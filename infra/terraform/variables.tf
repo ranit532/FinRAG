@@ -1,45 +1,54 @@
-variable "location" {
-  description = "Azure region for deployment"
-  type        = string
-  default     = "eastus"
-}
-
 variable "project_name" {
-  description = "Prefix used for all resources"
-  type        = string
-  default     = "finrag"
+  description = "Name of the project."
 }
 
 variable "environment" {
-  description = "Deployment environment"
-  type        = string
-  default     = "poc"
+  description = "Deployment environment name."
+}
+
+variable "location" {
+  description = "Azure region for the deployment."
+  default     = "southindia"
 }
 
 variable "azure_devops_org_url" {
-  description = "Azure DevOps organization URL"
+  description = "URL of the Azure DevOps organization."
   type        = string
 }
 
 variable "azure_devops_project" {
-  description = "Azure DevOps project name"
-  type        = string
+  description = "Name of the Azure DevOps project."
+  default     = "FinRAGProject"
 }
 
 variable "azure_devops_pat" {
-  description = "Azure DevOps PAT with service connection permissions"
-  type        = string
+  description = "Personal Access Token for Azure DevOps."
   sensitive   = true
 }
 
-variable "oidc_service_principal_name" {
-  description = "Display name for the DevOps federated identity"
-  type        = string
-  default     = "finrag-ado-mi"
+variable "create_azure_devops_project" {
+  description = "Whether to create a new Azure DevOps project."
+  type        = bool
+  default     = true
 }
 
-variable "create_azure_devops_project" {
-  description = "Whether Terraform should create the Azure DevOps project (set false to use an existing project)."
-  type        = bool
-  default     = false
+variable "ado_service_connection_name" {
+  description = "Name of the Azure DevOps service connection."
+  default     = "FinRAGServiceConnection"
 }
+
+variable "ado_environment_name" {
+  description = "Name of the Azure DevOps environment."
+  default     = "FinRAGEnv"
+}
+
+# This allows switching SKUs easily
+variable "sku_name" {
+  default = "B1"
+}
+
+variable "oidc_service_principal_name" {
+  type        = string
+  description = "The name of the service principal to use for OIDC."
+}
+
