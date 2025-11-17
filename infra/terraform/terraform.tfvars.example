@@ -3,5 +3,6 @@ project_name          = "finrag"
 environment           = "dev"
 azure_devops_org_url  = "https://dev.azure.com/newsman9434"
 azure_devops_project  = "FinRAG"
-azure_devops_pat = "AZDO-PAT-PLACEHOLDER"
+azure_devops_pat      = "AZDO-PAT-PLACEHOLDER"
 oidc_service_principal_name = "finrag-ado-mi"
+create_azure_devops_project = false

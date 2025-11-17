@@ -37,3 +37,9 @@ variable "oidc_service_principal_name" {
   type        = string
   default     = "finrag-ado-mi"
 }
+
+variable "create_azure_devops_project" {
+  description = "Whether Terraform should create the Azure DevOps project (set false to use an existing project)."
+  type        = bool
+  default     = false
+}

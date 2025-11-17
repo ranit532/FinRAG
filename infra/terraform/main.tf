@@ -1,5 +1,6 @@
 locals {
   stack_name = "${var.project_name}-${var.environment}"
+  devops_project_id = var.create_azure_devops_project ? azuredevops_project.project[0].id : data.azuredevops_project.existing[0].id
 }
 
 resource "random_string" "suffix" {
@@ -15,12 +16,12 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "static" {
-  name                     = "st${local.stack_name}${random_string.suffix.result}"
+  name                     = substr(lower("st${replace(local.stack_name, "-", "")}${random_string.suffix.result}"), 0, 24)
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  enable_https_traffic_only = true
+  https_traffic_only_enabled = true
 
   static_website {
     index_document     = "index.html"
@@ -33,8 +34,7 @@ resource "azurerm_log_analytics_workspace" "log" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
-  # Lower retention to reduce Log Analytics cost for a PoC
-  retention_in_days   = 7
+  retention_in_days   = 30
 }
 
 resource "azurerm_application_insights" "appi" {
@@ -58,6 +58,7 @@ resource "azurerm_cognitive_account" "openai" {
 resource "azurerm_cognitive_deployment" "gpt4o" {
   name                 = "gpt-4o-mini"
   cognitive_account_id = azurerm_cognitive_account.openai.id
+  rai_policy_name      = "Microsoft.Default"
   model {
     format  = "OpenAI"
     name    = "gpt-4o-mini"
@@ -66,12 +67,14 @@ resource "azurerm_cognitive_deployment" "gpt4o" {
   scale {
     type = "Standard"
     size = "S0"
+    capacity = 1
   }
 }
 
 resource "azurerm_cognitive_deployment" "embedding" {
   name                 = "text-embedding-3-large"
   cognitive_account_id = azurerm_cognitive_account.openai.id
+  rai_policy_name      = "Microsoft.Default"
   model {
     format  = "OpenAI"
     name    = "text-embedding-3-large"
@@ -80,6 +83,7 @@ resource "azurerm_cognitive_deployment" "embedding" {
   scale {
     type = "Standard"
     size = "S0"
+    capacity = 1
   }
 }
 
@@ -88,8 +92,8 @@ resource "azurerm_service_plan" "asp" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   os_type             = "Linux"
-  # B1 = Basic tier, enough for PoC and much cheaper than P1v3
-  sku_name            = "B1"
+  # F1 (Free) to stay within new subscription quotas. Upgrade for sustained load.
+  sku_name            = "F1"
 }
 
 resource "azurerm_linux_web_app" "api" {
@@ -129,34 +133,39 @@ resource "azuread_application" "devops_app" {
 }
 
 resource "azuread_service_principal" "devops_sp" {
-  application_id = azuread_application.devops_app.application_id
+  client_id = azuread_application.devops_app.client_id
 }
 
 resource "azuread_service_principal_password" "devops_sp_secret" {
   service_principal_id = azuread_service_principal.devops_sp.id
-  end_date_relative    = "8760h" # 1 year
+  end_date             = timeadd(timestamp(), "8760h") # 1 year
 }
 
 resource "azuredevops_project" "project" {
-  name               = var.azure_devops_project
-  description        = "FinRAG PoC"
-  visibility         = "private"
-  version_control    = "Git"
+  count             = var.create_azure_devops_project ? 1 : 0
+  name              = var.azure_devops_project
+  description       = "FinRAG PoC"
+  visibility        = "private"
+  version_control   = "Git"
   work_item_template = "Agile"
 }
 
+data "azuredevops_project" "existing" {
+  count = var.create_azure_devops_project ? 0 : 1
+  name  = var.azure_devops_project
+}
+
 resource "azuredevops_serviceendpoint_azurerm" "service_connection" {
-  project_id            = azuredevops_project.project.id
+  project_id            = local.devops_project_id
   service_endpoint_name = "${local.stack_name}-service-connection"
   description           = "OIDC-based connection for Terraform & pipelines"
   credentials {
-    serviceprincipalid  = azuread_application.devops_app.application_id
+    serviceprincipalid  = azuread_application.devops_app.client_id
     serviceprincipalkey = azuread_service_principal_password.devops_sp_secret.value
   }
   azurerm_spn_tenantid      = data.azurerm_client_config.current.tenant_id
   azurerm_subscription_id   = data.azurerm_subscription.current.subscription_id
   azurerm_subscription_name = data.azurerm_subscription.current.display_name
-  authorization_scheme      = "ServicePrincipal"
 }
 
 data "azurerm_client_config" "current" {}
