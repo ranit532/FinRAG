@@ -95,10 +95,13 @@ sequenceDiagram
 
 ### Terraform Deployment
 1. Copy `infra/terraform/terraform.tfvars.example` ➜ `terraform.tfvars` and fill values (region, DevOps org/project, PAT, etc.).
-2. **For free-credit PoC usage**, the Terraform defaults are tuned to be cheaper:
-   - App Service Plan uses `B1` (Basic) instead of `P1v3`.
-   - Log Analytics retention is set to 7 days.
-   - Azure OpenAI is on minimal `S0` usage; keep prompts light during experimentation.
+2. **For free-credit PoC usage**, the Terraform defaults aim to fit new-subscription quotas:
+   - App Service Plan uses `S1` (first paid tier commonly available even when Free/Basic quotas = 0). If your subscription still shows zero Standard quota, request a quota increase or switch to a region/subscription with available App Service compute before applying Terraform.
+   - Log Analytics retention is set to 30 days (minimum allowed for PerGB2018).
+   - Azure OpenAI uses widely-available models (`gpt-35-turbo`, `text-embedding-ada-002`) at `S0` scale; keep prompts light during experimentation.
+   - Storage account names auto-sanitize to meet Azure constraints.
+   - Cognitive deployments set the default Responsible AI policy so new regions accept the deployment request.
+   - You can skip creating the Azure DevOps project by leaving `create_azure_devops_project = false` (default) and Terraform will re-use an existing project instead.
 3. Configure AzureRM backend (remote state) or let Terraform default to local.
 4. Run:
    ```bash

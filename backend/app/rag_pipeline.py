@@ -35,7 +35,7 @@ class RagPipeline:
     if self.pinecone_index not in [index["name"] for index in self.pinecone_client.list_indexes()]:
       self.pinecone_client.create_index(
         name=self.pinecone_index,
-        dimension=3072,
+        dimension=1536,
         metric="cosine",
         spec=ServerlessSpec(cloud="aws", region="us-east-1"),
       )
