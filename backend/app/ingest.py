@@ -15,7 +15,10 @@ from .rag_pipeline import RagPipeline
 
 load_dotenv()
 
-DATASET_PATH = Path(os.getenv("DATASET_PATH", "data/synthetic_policies.json"))
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = BACKEND_DIR.parent
+DEFAULT_DATASET_PATH = ROOT_DIR / "data" / "synthetic_policies.json"
+DATASET_PATH = Path(os.getenv("DATASET_PATH", DEFAULT_DATASET_PATH))
 
 
 def chunk_text(text: str, chunk_size: int = 800, overlap: int = 150) -> Iterable[str]:

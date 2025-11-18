@@ -12,8 +12,8 @@ DEFAULT_INDEX_NAME = "insurance-rag-index"
 class RagPipeline:
   def __init__(self) -> None:
     self.deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o-mini")
-    self.embedding_deployment = os.getenv("AZURE_OPENAI_EMBEDDING", "text-embedding-3-large")
-    self.azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+    self.embedding_deployment = os.getenv("AZURE_OPENAI_EMBEDDING", "text-embedding-ada-002")
+    self.azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT", "https://api.openai.com")
     self.pinecone_index = os.getenv("PINECONE_INDEX_NAME", DEFAULT_INDEX_NAME)
     self.pinecone_env = os.getenv("PINECONE_ENV", "us-east1-gcp")
     self.pinecone_api_key = os.getenv("PINECONE_API_KEY", "FAKE-KEY")
@@ -25,7 +25,7 @@ class RagPipeline:
 
     self.openai_client = AzureOpenAI(
       azure_endpoint=self.azure_endpoint,
-      api_version="2024-08-01-preview",
+      api_version="2024-02-01",
       azure_ad_token_provider=token_provider,
     )
     self.pinecone_client = Pinecone(api_key=self.pinecone_api_key)
@@ -53,9 +53,9 @@ class RagPipeline:
     return results["matches"]
 
   def _generate(self, question: str, context: str) -> str:
-    completion = self.openai_client.responses.create(
+    completion = self.openai_client.chat.completions.create(
       model=self.deployment,
-      input=[
+      messages=[
         {
           "role": "system",
           "content": "You are an insurance financial analyst. Cite sources when possible.",
@@ -67,7 +67,7 @@ class RagPipeline:
       ],
       temperature=0.2,
     )
-    return completion.output[0].content[0].text
+    return completion.choices[0].message.content
 
   def answer(self, question: str) -> Tuple[str, List[dict]]:
     query_vector = self._embed(question)

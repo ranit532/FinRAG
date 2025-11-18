@@ -1,8 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from dotenv import load_dotenv
 
 from .rag_pipeline import RagPipeline
+
+load_dotenv()
 
 
 class RagRequest(BaseModel):
