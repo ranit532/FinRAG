@@ -1,5 +1,5 @@
 # Azure DevOps Pipeline for FinRAG
-# This pipeline installs dependencies, runs backend tests, and builds the frontend.
+# This pipeline installs dependencies, runs backend tests, and builds the frontend sequentially.
 # Adjust pool, triggers, and steps as needed for your environment.
 
 trigger:
@@ -16,9 +16,20 @@ stages:
   - stage: BuildAndTest
     displayName: Build and Test
     jobs:
-      - job: Backend
-        displayName: Backend (Python)
+      - job: BuildAll
+        displayName: Build Frontend and Backend Sequentially
         steps:
+          # Frontend build
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '18.x'
+          - script: |
+              cd $(frontendPath)
+              npm install
+              npm run build
+            displayName: 'Install and build frontend'
+
+          # Backend build
           - task: UsePythonVersion@0
             inputs:
               versionSpec: '3.9'
@@ -29,17 +40,5 @@ stages:
           # Add your backend test step here if you have tests
           # - script: pytest $(backendPath)/tests
           #   displayName: 'Run backend tests'
-
-      - job: Frontend
-        displayName: Frontend (Node.js)
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '18.x'
-          - script: |
-              cd $(frontendPath)
-              npm install
-              npm run build
-            displayName: 'Install and build frontend'
 
 # Add more stages/jobs for deployment as needed
