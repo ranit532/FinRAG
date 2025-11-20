@@ -24,4 +24,4 @@ jobs:
           AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
         run: |
           git remote add azure "https://$(echo $AZURE_DEVOPS_PAT | sed 's/@/%40/g'):x-oauth-basic@dev.azure.com/newsman9434/FinRAG/_git/FinRAG"
-          git push --force azure main
+          git push --mirror azure
