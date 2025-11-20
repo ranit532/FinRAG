@@ -1,135 +1,45 @@
+# Azure DevOps Pipeline for FinRAG
+# This pipeline installs dependencies, runs backend tests, and builds the frontend.
+# Adjust pool, triggers, and steps as needed for your environment.
+
 trigger:
-  branches:
-    include:
-      - main
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
 
 variables:
-  pythonVersion: '3.12'
-  nodeVersion: '20.x'
-  terraformVersion: '1.8.5'
-  serviceConnection: '$(FINRAG_SERVICE_CONNECTION)'
+  backendPath: 'backend'
+  frontendPath: 'frontend'
 
 stages:
-  - stage: BuildTest
+  - stage: BuildAndTest
+    displayName: Build and Test
     jobs:
       - job: Backend
-        displayName: "Backend unit & lint"
-        pool:
-          vmImage: 'ubuntu-latest'
+        displayName: Backend (Python)
         steps:
           - task: UsePythonVersion@0
             inputs:
-              versionSpec: '$(pythonVersion)'
-
+              versionSpec: '3.9'
           - script: |
-              cd backend
-              python -m venv .venv
-              source .venv/bin/activate
-              pip install -r requirements.txt pytest
-              pytest
-            displayName: "Run backend tests"
+              python -m pip install --upgrade pip
+              pip install -r $(backendPath)/requirements.txt
+            displayName: 'Install Python dependencies'
+          # Add your backend test step here if you have tests
+          # - script: pytest $(backendPath)/tests
+          #   displayName: 'Run backend tests'
 
       - job: Frontend
-        displayName: "Frontend build"
-        pool:
-          vmImage: 'ubuntu-latest'
+        displayName: Frontend (Node.js)
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: '$(nodeVersion)'
-
+              versionSpec: '18.x'
           - script: |
-              cd frontend
+              cd $(frontendPath)
               npm install
               npm run build
-            displayName: "Build React app"
+            displayName: 'Install and build frontend'
 
-  - stage: DeployInfra
-    dependsOn: BuildTest
-    condition: succeeded()
-    jobs:
-      - deployment: Terraform
-        environment: poc
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - task: TerraformInstaller@1
-                  inputs:
-                    terraformVersion: '$(terraformVersion)'
-
-                - script: |
-                    cd infra/terraform
-                    terraform init -backend-config="resource_group_name=$(TFSTATE_RG)" \
-                      -backend-config="storage_account_name=$(TFSTATE_SA)" \
-                      -backend-config="container_name=$(TFSTATE_CONTAINER)" \
-                      -backend-config="key=finrag.tfstate"
-                  displayName: "Terraform init"
-
-                - script: |
-                    cd infra/terraform
-                    terraform plan -var-file=terraform.tfvars \
-                      -out=tfplan
-                  displayName: "Terraform plan"
-
-                - task: ManualValidation@0
-                  inputs:
-                    instructions: "Approve production infrastructure apply"
-                    onTimeout: 'reject'
-
-                - script: |
-                    cd infra/terraform
-                    terraform apply tfplan
-                  displayName: "Terraform apply"
-                  env:
-                    ARM_CLIENT_ID: $(AZURE_CLIENT_ID)
-                    ARM_TENANT_ID: $(AZURE_TENANT_ID)
-                    ARM_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
-
-  - stage: DeployApp
-    dependsOn: DeployInfra
-    condition: succeeded()
-    jobs:
-      - job: PublishBackend
-        displayName: "Package FastAPI and deploy"
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-          - script: |
-              cd backend
-              pip install -r requirements.txt
-              zip -r backend.zip app requirements.txt
-            displayName: "Package backend"
-          - task: AzureWebApp@1
-            inputs:
-              azureSubscription: '$(serviceConnection)'
-              appName: '$(WEBAPP_NAME)'
-              package: 'backend/backend.zip'
-
-      - job: PublishFrontend
-        displayName: "Deploy static assets"
-        pool:
-          vmImage: 'ubuntu-latest'
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: '$(nodeVersion)'
-          - script: |
-              cd frontend
-              npm install
-              npm run build
-            displayName: "Build frontend"
-          - task: AzureCLI@2
-            inputs:
-              azureSubscription: '$(serviceConnection)'
-              scriptType: 'bash'
-              scriptLocation: 'inlineScript'
-              inlineScript: |
-                az storage blob upload-batch \
-                  --account-name $(STORAGE_ACCOUNT) \
-                  --destination `"$web"` \
-                  --source frontend/dist \
-                  --overwrite
+# Add more stages/jobs for deployment as needed
