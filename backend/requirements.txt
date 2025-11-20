@@ -6,3 +6,5 @@ pinecone-client==4.1.1
 azure-identity==1.17.1
 python-dotenv==1.0.1
 tenacity==9.0.0
+opencensus-ext-azure==1.1.9
+opencensus-ext-logging==0.1.1
